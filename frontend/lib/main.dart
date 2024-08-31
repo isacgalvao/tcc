@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/home/teacher/home_teacher.dart';
-import 'package:frontend/login/login.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:frontend/home/teacher/classes/create/page.dart';
+import 'package:frontend/home/teacher/page.dart';
+import 'package:frontend/login/page.dart';
 import 'package:get/get.dart';
 
 void main() {
@@ -13,12 +15,16 @@ class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
+      title: 'Gestão Individual de Turmas',
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+      ],
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const HomeTeacher(),
+      debugShowCheckedModeBanner: false,
+      home: TeacherHomePage(),
     );
   }
 }

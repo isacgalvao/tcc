@@ -7,6 +7,8 @@ import io.github.isacgalvao.sistema.professor.dto.CreateProfessor;
 import io.github.isacgalvao.sistema.professor.dto.UpdateProfessor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,6 +36,10 @@ public class Professor {
     @JsonIgnore
     @Column(nullable = false, length = ProfessorConstraints.Password.MAX_SIZE)
     private String senha;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private SituacaoProfessor situacao;
 
     public Professor merge(UpdateProfessor dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {
@@ -63,6 +69,7 @@ public class Professor {
         entity.setUsuario(dto.usuario());
         // FIXME - Deve-se utilizar um encoder para a senha
         entity.setSenha(dto.senha());
+        entity.setSituacao(SituacaoProfessor.ATIVO);
         return entity;
     }
 }

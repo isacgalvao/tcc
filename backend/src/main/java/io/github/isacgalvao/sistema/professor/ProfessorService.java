@@ -8,8 +8,11 @@ import org.springframework.stereotype.Service;
 import io.github.isacgalvao.sistema.professor.dto.CreateProfessor;
 import io.github.isacgalvao.sistema.professor.dto.UpdateProfessor;
 import io.github.isacgalvao.sistema.professor.entities.Professor;
+import io.github.isacgalvao.sistema.professor.entities.SituacaoProfessor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class ProfessorService {
     @Autowired
     private ProfessorRepository repository;
@@ -18,12 +21,26 @@ public class ProfessorService {
         return repository.save(Professor.of(dto));
     }
 
-    public Professor findByUsuario(String usuario) {
-        return repository.findByUsuario(usuario);
+    public Optional<Professor> findByUsuario(String usuario) {
+        Optional<Professor> professor = findByUsuario(usuario);
+        
+        if (professor.isPresent() && professor.get().getSituacao() == SituacaoProfessor.ATIVO) {
+            return professor;
+        }
+
+        log.warn("Professor não encontrado ou inativo.");
+        return Optional.empty();
     }
 
     public Optional<Professor> findById(Long id) {
-        return repository.findById(id);
+        Optional<Professor> professor = repository.findById(id);
+
+        if (professor.isPresent() && professor.get().getSituacao() == SituacaoProfessor.ATIVO) {
+            return professor;
+        }
+
+        log.warn("Professor não encontrado ou inativo.");
+        return Optional.empty();
     }
 
     public void deleteById(Long id) {

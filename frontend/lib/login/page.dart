@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/home/home_student.dart';
-import 'package:frontend/home/teacher/home_teacher.dart';
+import 'package:frontend/home/student/page.dart';
+import 'package:frontend/home/teacher/page.dart';
 import 'package:frontend/login/entities.dart';
 import 'package:frontend/login/controller.dart';
 import 'package:frontend/login/widgets.dart';
@@ -91,10 +91,10 @@ class _LoginPageState extends State<LoginPage> {
 
       switch (user?.role) {
         case Role.teacher:
-          Get.off(() => const HomeTeacher());
+          Get.off(() => const TeacherHomePage());
           break;
         case Role.student:
-          Get.off(() => const HomeStudent());
+          Get.off(() => const StudentHomePage());
           break;
         default:
           return;
@@ -192,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: ElevatedButton(
                       onPressed: login,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                       ),
                       child: service.isLoading
                           ? const SizedBox(
