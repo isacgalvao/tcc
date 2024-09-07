@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/home/teacher/classes/page.dart';
+import 'package:frontend/home/teacher/profile/page.dart';
+import 'package:frontend/home/teacher/students/page.dart';
 import 'package:get/get.dart';
 
 class TeacherHomePage extends StatelessWidget {
@@ -30,12 +32,12 @@ class TeacherHomePage extends StatelessWidget {
               CustomCard(
                 icon: Icons.emoji_people_rounded,
                 title: 'Meus alunos',
-                onTap: () => {},
+                onTap: () => Get.to(() => StudentsPage()),
               ),
               CustomCard(
                 icon: Icons.person,
                 title: 'Meu perfil',
-                onTap: () => {},
+                onTap: () => Get.to(() => EditProfilePage()),
               )
             ],
           ),

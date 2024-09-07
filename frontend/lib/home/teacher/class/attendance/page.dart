@@ -51,7 +51,7 @@ class AttendancePage extends StatelessWidget {
     Aluno(id: 3, nome: 'Aluno 3', turmas: List.empty()),
   ];
 
-  Rx<DateTime> date = DateTime.now().obs;
+  final Rx<DateTime> date = DateTime.now().obs;
 
   final RxList<Attendance> attendance = RxList<Attendance>();
 
@@ -158,16 +158,8 @@ class AttendancePage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text('Lançar presença'),
           onPressed: () {
-            if (date == null) {
-              Get.snackbar(
-                'Erro',
-                'Selecione uma data',
-                backgroundColor: Colors.red.withOpacity(0.8),
-              );
-            } else {
-              // TODO: Implementar lançamento de presença
-              Get.back();
-            }
+            // TODO: Implementar lançamento de presença
+            Get.back();
           },
         ),
       ),

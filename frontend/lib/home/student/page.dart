@@ -10,6 +10,21 @@ class StudentHomePage extends StatefulWidget {
 class _StudentHomePageState extends State<StudentHomePage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder(child: Text("Student page"));
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gestão Individual de Turmas'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const <Widget>[
+            Text(
+              'Bem-vindo, estudante!',
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
