@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.isacgalvao.sistema.professor.ProfessorConstraints;
 import io.github.isacgalvao.sistema.professor.dto.CreateProfessor;
 import io.github.isacgalvao.sistema.professor.dto.UpdateProfessor;
+import io.github.isacgalvao.sistema.utils.BCryptUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,8 +56,7 @@ public class Professor {
         }
 
         if (dto.senha() != null && !dto.senha().isBlank()) {
-            // FIXME - Deve-se utilizar um encoder para a senha
-            this.setSenha(dto.senha());
+            this.setSenha(BCryptUtils.getInstance().hash(dto.senha()));
         }
 
         return this;
@@ -67,8 +67,7 @@ public class Professor {
         entity.setNome(dto.nome());
         entity.setEmail(dto.email());
         entity.setUsuario(dto.usuario());
-        // FIXME - Deve-se utilizar um encoder para a senha
-        entity.setSenha(dto.senha());
+        entity.setSenha(BCryptUtils.getInstance().hash(dto.senha()));
         entity.setSituacao(SituacaoProfessor.ATIVO);
         return entity;
     }

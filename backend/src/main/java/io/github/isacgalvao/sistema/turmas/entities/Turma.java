@@ -1,5 +1,6 @@
 package io.github.isacgalvao.sistema.turmas.entities;
 
+import java.util.Date;
 import java.util.Set;
 
 import io.github.isacgalvao.sistema.aluno.entities.Aluno;
@@ -27,12 +28,6 @@ public class Turma {
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(nullable = false)
-    private Integer ano;
-
-    @Column(nullable = false)
-    private Integer periodosAvaliativos;
-
     @ManyToMany
     @JoinTable(
         name = "turmas_alunos",
@@ -47,4 +42,7 @@ public class Turma {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private SituacaoTurma situacao;
+
+    @Column(nullable = false)
+    private Date dataCriacao;
 }
