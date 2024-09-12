@@ -38,9 +38,12 @@ public class AuthService {
 
         Optional<Aluno> alunoOpt = aluno.join();
         if (alunoOpt.isPresent()) {
+            if (alunoOpt.get().getSenha() == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Senha não cadastrada. Entre em contato com o professor.");
+            }
             return bCrypt.verify(password, alunoOpt.get().getSenha()) ? "ALUNO" : null;
         }
-        
+
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
 }
