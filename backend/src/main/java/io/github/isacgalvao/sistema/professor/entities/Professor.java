@@ -20,7 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
+import jakarta.persistence.Transient;
 import lombok.Data;
 
 @Entity
@@ -54,6 +54,9 @@ public class Professor {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private SituacaoProfessor situacao;
+
+    @Transient
+    private String role = "PROFESSOR";
 
     public Professor merge(UpdateProfessor dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {

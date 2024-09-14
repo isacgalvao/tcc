@@ -23,6 +23,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Data;
 
 @Entity
@@ -68,6 +69,9 @@ public class Aluno {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private SituacaoAluno situacao;
+
+    @Transient
+    private String role = "ALUNO";
 
     public static Aluno of(Long id) {
         Aluno aluno = new Aluno();
