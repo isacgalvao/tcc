@@ -25,7 +25,7 @@ public class AuthService {
 
     private final BCryptUtils bCrypt = BCryptUtils.getInstance();
 
-    public String login(String username, String email, String password) {
+    public Object login(String username, String email, String password) {
         CompletableFuture<Optional<Professor>> professor = CompletableFuture
                 .supplyAsync(() -> professorRepository.findByUsuarioOrEmail(username, email));
         CompletableFuture<Optional<Aluno>> aluno = CompletableFuture
@@ -33,7 +33,7 @@ public class AuthService {
 
         Optional<Professor> professorOpt = professor.join();
         if (professorOpt.isPresent()) {
-            return bCrypt.verify(password, professorOpt.get().getSenha()) ? "PROFESSOR" : null;
+            return bCrypt.verify(password, professorOpt.get().getSenha()) ? professorOpt.get() : null;
         }
 
         Optional<Aluno> alunoOpt = aluno.join();
@@ -41,7 +41,7 @@ public class AuthService {
             if (alunoOpt.get().getSenha() == null) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Senha não cadastrada. Entre em contato com o professor.");
             }
-            return bCrypt.verify(password, alunoOpt.get().getSenha()) ? "ALUNO" : null;
+            return bCrypt.verify(password, alunoOpt.get().getSenha()) ? alunoOpt.get() : null;
         }
 
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);

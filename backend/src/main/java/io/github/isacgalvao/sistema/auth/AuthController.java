@@ -26,7 +26,7 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "É necessário informar o nome de usuário ou e-mail.");
         }
 
-        String user = service.login(dto.user(), dto.email(), dto.password());
+        Object user = service.login(dto.user(), dto.email(), dto.password());
         if (user != null) {
             return user;
         }

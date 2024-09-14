@@ -14,6 +14,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,7 +44,7 @@ public class Professor {
     @Column(nullable = false, length = ProfessorConstraints.Password.MAX_SIZE)
     private String senha;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     private List<Aluno> alunos;
 
     @JsonIgnore
