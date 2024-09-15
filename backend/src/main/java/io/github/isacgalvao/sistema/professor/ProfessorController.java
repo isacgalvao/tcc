@@ -1,15 +1,19 @@
 package io.github.isacgalvao.sistema.professor;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.github.isacgalvao.sistema.aluno.AlunoService;
+import io.github.isacgalvao.sistema.aluno.entities.Aluno;
 import io.github.isacgalvao.sistema.professor.dto.CreateProfessor;
 import io.github.isacgalvao.sistema.professor.dto.UpdateProfessor;
 import io.github.isacgalvao.sistema.professor.entities.Professor;
 import jakarta.validation.Valid;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,9 @@ public class ProfessorController {
     
     @Autowired
     private ProfessorService service;
+
+    @Autowired
+    private AlunoService alunoService;
 
     @PostMapping(consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
@@ -79,5 +86,14 @@ public class ProfessorController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Não é possível deletar um professor que não existe.");
         }
         service.deleteById(id);
+    }
+
+    // alunos
+    @GetMapping("{id}/alunos")
+    public List<Aluno> buscaAlunos(@PathVariable Long id, @RequestParam(required = false) String nome) {
+        if (nome != null) {
+            return alunoService.buscarPorProfessorENome(id, nome);
+        }
+        return alunoService.buscarPorProfessor(id);
     }
 }

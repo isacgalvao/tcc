@@ -1,5 +1,6 @@
 package io.github.isacgalvao.sistema.aluno;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,10 @@ public interface AlunoRepository extends JpaRepository <Aluno, Long> {
 
     @Query("SELECT a FROM Aluno a WHERE a.id = :id OR a.usuario = :username")
     Optional<Aluno> findOneByIdOrUsername(Long id, String username);
+
+    @Query("SELECT a FROM Aluno a WHERE a.owner.id = :professorId")
+    List<Aluno> findByProfessorId(Long professorId);
+
+    @Query("SELECT a FROM Aluno a WHERE a.owner.id = :professorId AND LOWER(a.nome) LIKE LOWER(CONCAT('%', :nome, '%'))")
+    List<Aluno> findByProfessorIdAndNomeContaining(Long professorId, String nome);
 }

@@ -1,5 +1,6 @@
 package io.github.isacgalvao.sistema.aluno;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +27,13 @@ public class AlunoService {
 
     public boolean existsById(Long id) {
         return repository.existsById(id);
+    }
+
+    public List<Aluno> buscarPorProfessor(Long professorId) {
+        return repository.findByProfessorId(professorId);
+    }
+
+    public List<Aluno> buscarPorProfessorENome(Long professorId, String nome) {
+        return repository.findByProfessorIdAndNomeContaining(professorId, nome);
     }
 }
