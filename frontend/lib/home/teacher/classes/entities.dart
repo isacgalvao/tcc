@@ -1,39 +1,49 @@
-class Aluno {
-  final int id;
-  final String nome;
-  final List<Turma> turmas;
-
-  const Aluno({
-    required this.id,
-    required this.nome,
-    required this.turmas,
-  });
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Aluno && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode ^ nome.hashCode ^ turmas.hashCode;
-}
+import 'package:frontend/home/teacher/students/entities.dart';
 
 class Turma {
+  final int id;
   final String nome;
   final String disciplina;
-  final int quantidadeAlunos;
-  List<Aluno> alunos = [];
+  final List<Aluno> alunos;
+  final Map<String, double>? resultadosFinais;
+  final double notaMinima;
+  final String situacao;
+  final DateTime dataCriacao;
 
   Turma({
+    required this.id,
     required this.nome,
     required this.disciplina,
-    required this.quantidadeAlunos,
+    required this.alunos,
+    required this.resultadosFinais,
+    required this.notaMinima,
+    required this.situacao,
+    required this.dataCriacao,
   });
 
-  Turma.empty()
-      : nome = '',
-        disciplina = '',
-        quantidadeAlunos = 0;
+  factory Turma.empty() {
+    return Turma(
+      id: -1,
+      nome: '',
+      disciplina: '',
+      alunos: [],
+      resultadosFinais: {},
+      notaMinima: 0,
+      situacao: '',
+      dataCriacao: DateTime.now(),
+    );
+  }
+
+  factory Turma.fromJson(Map<String, dynamic> json) {
+    return Turma(
+      id: json['id'],
+      nome: json['nome'],
+      disciplina: json['disciplina'],
+      alunos: List<Aluno>.from(json['alunos'].map((e) => Aluno.fromJson(e))),
+      resultadosFinais: Map<String, double>.from(json['resultadosFinais']),
+      notaMinima: json['notaMinima'],
+      situacao: json['situacao'],
+      dataCriacao: DateTime.parse(json['dataCriacao']),
+    );
+  }
 }

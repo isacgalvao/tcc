@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/home/teacher/class/page.dart';
+import 'package:frontend/home/teacher/classes/controller.dart';
 import 'package:frontend/home/teacher/classes/create/page.dart';
-import 'package:frontend/home/teacher/classes/entities.dart';
 import 'package:get/get.dart';
 
 class ClassesPage extends StatelessWidget {
-  final List<Turma> turmas = [
-    Turma(nome: 'Turma 1', disciplina: 'Matemát', quantidadeAlunos: 10),
-    Turma(nome: 'Turma 2', disciplina: 'Português', quantidadeAlunos: 15),
-    Turma(nome: 'Turma 3', disciplina: 'História', quantidadeAlunos: 20),
-    Turma(nome: 'Turma 4', disciplina: 'Geografia', quantidadeAlunos: 25),
-    Turma(nome: 'Turma 5', disciplina: 'Física', quantidadeAlunos: 30),
-  ];
+  final _controller = Get.put(ClassesController());
 
   ClassesPage({super.key});
 
@@ -37,35 +31,49 @@ class ClassesPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8),
-        child: turmas.isEmpty
-            ? const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.warning_rounded, size: 64),
-                    Text('Nenhuma turma cadastrada'),
-                  ],
-                ),
-              )
-            : ListView.builder(
-                itemCount: turmas.length,
-                itemBuilder: (context, index) {
-                  final turma = turmas[index];
-                  return Card(
-                    color: Theme.of(context).colorScheme.primaryFixed,
-                    margin: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      onTap: () => Get.to(() => ClassPage(turma: turma)),
-                      title: Text(turma.nome),
-                      subtitle: Text(turma.disciplina),
-                      trailing: Text('${turma.quantidadeAlunos} alunos'),
-                    ),
-                  );
-                },
+        child: Obx(() {
+          if (_controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (_controller.turmas.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.warning_rounded, size: 64),
+                  Text('Nenhuma turma cadastrada'),
+                ],
               ),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: _controller.turmas.length,
+            itemBuilder: (context, index) {
+              final turma = _controller.turmas[index];
+              return Card(
+                color: Theme.of(context).colorScheme.primaryFixed,
+                margin: const EdgeInsets.all(8.0),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  onTap: () => Get.to(() => ClassPage(turma: turma)),
+                  title: Text('${turma.nome} (${turma.disciplina})'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${turma.alunos.length} alunos'),
+                      Text('Situação: ${turma.situacao}'),
+                    ],
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded),
+                ),
+              );
+            },
+          );
+        }),
       ),
     );
   }

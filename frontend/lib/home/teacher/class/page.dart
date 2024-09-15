@@ -4,6 +4,7 @@ import 'package:frontend/home/teacher/class/attendance/page.dart';
 import 'package:frontend/home/teacher/class/entities.dart';
 import 'package:frontend/home/teacher/class/exam/page.dart';
 import 'package:frontend/home/teacher/classes/entities.dart';
+import 'package:frontend/home/teacher/students/entities.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -73,11 +74,7 @@ class PresencaPage extends StatelessWidget {
   final presencas = <Attendance>[
     Attendance.of(
       data: DateTime.now(),
-      aluno: const Aluno(
-        id: 1,
-        nome: 'João',
-        turmas: [],
-      ),
+      aluno: Aluno.random(),
       presente: true.obs,
       turma: Turma.empty(),
     ),
@@ -232,11 +229,7 @@ class ExamPage extends StatelessWidget {
         ExamValue(
           id: 1,
           value: 10,
-          student: const Aluno(
-            id: 1,
-            nome: 'João',
-            turmas: [],
-          ),
+          student: Aluno.random(),
           exam: Exam.empty(),
         ),
       ],

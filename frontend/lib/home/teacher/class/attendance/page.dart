@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/home/teacher/classes/entities.dart';
+import 'package:frontend/home/teacher/students/entities.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -46,9 +47,9 @@ class Attendance {
 
 class AttendancePage extends StatelessWidget {
   final List<Aluno> alunos = [
-    Aluno(id: 1, nome: 'Aluno 1', turmas: List.empty()),
-    Aluno(id: 2, nome: 'Aluno 2', turmas: List.empty()),
-    Aluno(id: 3, nome: 'Aluno 3', turmas: List.empty()),
+    // Aluno(id: 1, nome: 'Aluno 1', turmas: List.empty()),
+    // Aluno(id: 2, nome: 'Aluno 2', turmas: List.empty()),
+    // Aluno(id: 3, nome: 'Aluno 3', turmas: List.empty()),
   ];
 
   final Rx<DateTime> date = DateTime.now().obs;

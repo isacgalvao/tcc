@@ -1,21 +1,90 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:frontend/home/teacher/classes/entities.dart';
+import 'package:frontend/home/teacher/students/controller.dart';
+import 'package:frontend/home/teacher/students/entities.dart';
+import 'package:frontend/util.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class StudentInfoPage extends StatelessWidget {
   final Aluno aluno;
 
   StudentInfoPage({super.key, required this.aluno});
 
-  final controller = TextEditingController();
+  final _controller = Get.find<StudentsController>();
+  final usuarioController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+
+  formatarTelefone(String telefone) {
+    if (telefone.length == 11) {
+      return telefone.replaceFirstMapped(
+        RegExp(r'(\d{2})(\d{5})(\d{4})'),
+        (match) => '(${match[1]}) ${match[2]}-${match[3]}',
+      );
+    } else {
+      return telefone.replaceFirstMapped(
+        RegExp(r'(\d{2})(\d{4})(\d{4})'),
+        (match) => '(${match[1]}) ${match[2]}-${match[3]}',
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Informações do aluno'),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.delete_rounded,
+              color: Colors.red,
+            ),
+            onPressed: () async {
+              bool canDelete = await Get.dialog<bool>(
+                    AlertDialog(
+                      title: const Text('Excluir aluno'),
+                      content: const Text('Deseja realmente excluir o aluno?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(result: false),
+                          child: const Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () => Get.back(result: true),
+                          child: const Text('Excluir'),
+                        ),
+                      ],
+                    ),
+                  ) ??
+                  false;
+              if (canDelete) {
+                var res = await loading(
+                  () => _controller.deleteStudent(aluno.id),
+                );
+
+                if (res.isOk) {
+                  Get.back();
+                  Get.snackbar(
+                    'Aluno excluído',
+                    'O aluno foi excluído com sucesso',
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.TOP,
+                  );
+                } else {
+                  Get.snackbar(
+                    'Erro',
+                    'Ocorreu um erro ao excluir o aluno',
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.TOP,
+                  );
+                }
+              }
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -39,9 +108,9 @@ class StudentInfoPage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Text(
-                      'Situação: Regular',
-                      style: TextStyle(
+                    Text(
+                      'Situação: ${aluno.situacao}',
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
@@ -52,46 +121,35 @@ class StudentInfoPage extends StatelessWidget {
             ),
             const Divider(),
             const SizedBox(height: 16),
-            const Row(
+            Row(
               children: [
-                Icon(Icons.email),
-                SizedBox(width: 16),
+                const Icon(Icons.email),
+                const SizedBox(width: 16),
                 Text(
-                  'Email: email@example.com',
-                  style: TextStyle(fontSize: 16),
+                  'Email: ${aluno.email}',
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            const Row(
+            Row(
               children: [
-                Icon(Icons.phone),
-                SizedBox(width: 16),
+                const Icon(Icons.phone),
+                const SizedBox(width: 16),
                 Text(
-                  'Telefone: (99) 99999-9999',
-                  style: TextStyle(fontSize: 16),
+                  'Telefone: ${formatarTelefone(aluno.telefone)}',
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            const Row(
+            Row(
               children: [
-                Icon(Icons.calendar_today),
-                SizedBox(width: 16),
+                const Icon(Icons.calendar_today),
+                const SizedBox(width: 16),
                 Text(
-                  'Data de nascimento: 01/01/2000',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Row(
-              children: [
-                Icon(Icons.class_rounded),
-                SizedBox(width: 16),
-                Text(
-                  'Turmas: 3',
-                  style: TextStyle(fontSize: 16),
+                  'Data de nascimento: ${DateFormat('dd/MM/yyyy').format(aluno.dataNascimento)}',
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -109,7 +167,7 @@ class StudentInfoPage extends StatelessWidget {
                       content: Form(
                         key: formKey,
                         child: TextFormField(
-                          controller: controller,
+                          controller: usuarioController,
                           decoration: const InputDecoration(
                             labelText: 'Usuário',
                             border: OutlineInputBorder(),
@@ -173,7 +231,7 @@ class StudentInfoPage extends StatelessWidget {
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          controller.text,
+                                          usuarioController.text,
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -233,7 +291,7 @@ class StudentInfoPage extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: true
+                  onPressed: aluno.usuario == null
                       ? null
                       : () {
                           Get.defaultDialog(

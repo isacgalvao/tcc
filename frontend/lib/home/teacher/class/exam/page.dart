@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/home/teacher/classes/entities.dart';
 import 'package:get/get.dart';
 
 class CreateExamPage extends StatelessWidget {
   final alunos = [
-    const Aluno(
-      id: 1,
-      nome: 'Aluno 1',
-      turmas: [],
-    ),
-    const Aluno(
-      id: 2,
-      nome: 'Aluno 2',
-      turmas: [],
-    ),
-    const Aluno(
-      id: 3,
-      nome: 'Aluno 3',
-      turmas: [],
-    ),
+    // const Aluno(
+    //   id: 1,
+    //   nome: 'Aluno 1',
+    //   turmas: [],
+    // ),
+    // const Aluno(
+    //   id: 2,
+    //   nome: 'Aluno 2',
+    //   turmas: [],
+    // ),
+    // const Aluno(
+    //   id: 3,
+    //   nome: 'Aluno 3',
+    //   turmas: [],
+    // ),
   ];
 
   final List<TextEditingController> notaControllers = [];

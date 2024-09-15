@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/role/page.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class EditProfilePage extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
@@ -12,6 +14,24 @@ class EditProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Editar Perfil'),
+        actions: [
+          TextButton(
+            child: const Text(
+              "Sair",
+              style: TextStyle(
+                color: Colors.red,
+              ),
+            ),
+            onPressed: () {
+              final storage = Get.find<GetStorage>();
+              storage.remove('nome');
+              storage.remove('role');
+              storage.remove('id');
+
+              Get.offAll(() => const RolePage());
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

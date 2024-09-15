@@ -7,7 +7,10 @@ import 'package:get/get.dart';
 class TeacherHomePage extends StatelessWidget {
   final String teacherName;
 
-  const TeacherHomePage({super.key, this.teacherName = 'professor'});
+  const TeacherHomePage({
+    super.key,
+    required this.teacherName,
+  });
 
   @override
   Widget build(BuildContext context) {

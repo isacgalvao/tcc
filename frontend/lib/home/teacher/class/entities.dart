@@ -1,4 +1,4 @@
-import 'package:frontend/home/teacher/classes/entities.dart';
+import 'package:frontend/home/teacher/students/entities.dart';
 
 class Note {
   final String id;

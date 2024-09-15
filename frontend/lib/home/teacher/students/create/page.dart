@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend/home/teacher/students/controller.dart';
+import 'package:frontend/util.dart';
 import 'package:get/get.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class CreateStudentPage extends StatelessWidget {
+  final _controller = Get.find<StudentsController>();
+
   CreateStudentPage({super.key});
 
   final _formKey = GlobalKey<FormState>();
@@ -104,10 +108,35 @@ class CreateStudentPage extends StatelessWidget {
         color: Colors.transparent,
         child: ElevatedButton(
           child: const Text('Adicionar aluno'),
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              // TODO: Implementar lógica de adicionar aluno
-              Get.back();
+              var result = await loading(
+                () => _controller.createStudent(
+                  nameController.text,
+                  emailController.text,
+                  phoneMask.getUnmaskedText(),
+                  birthDateController.text,
+                ),
+              );
+
+              if (result.isOk) {
+                Get.back();
+                Get.snackbar(
+                  'Sucesso',
+                  'Aluno criado com sucesso',
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.TOP,
+                );
+              } else {
+                Get.snackbar(
+                  'Erro',
+                  'Erro ao criar aluno: ${result.body}',
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.TOP,
+                );
+              }
             }
           },
         ),
