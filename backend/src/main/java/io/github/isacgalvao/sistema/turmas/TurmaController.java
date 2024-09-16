@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.github.isacgalvao.sistema.aluno.AlunoService;
+import io.github.isacgalvao.sistema.aluno.entities.Aluno;
 import io.github.isacgalvao.sistema.turmas.dto.CreateAnotacao;
 import io.github.isacgalvao.sistema.turmas.dto.CreateAvaliacao;
 import io.github.isacgalvao.sistema.turmas.dto.CreatePresenca;
@@ -205,6 +206,12 @@ public class TurmaController {
         }
 
         avaliacaoService.salvar(avaliacaoOpt.get().merge(dto));
+    }
+
+    // alunos
+    @GetMapping("{turmaId}/alunos")
+    public List<Aluno> buscarAlunos(@PathVariable Long professorId, @PathVariable Long turmaId) {
+        return service.buscarPorId(turmaId).getAlunos();
     }
 
     @PostMapping("{turmaId}/consolidar")
