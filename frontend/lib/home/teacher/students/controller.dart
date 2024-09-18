@@ -11,16 +11,26 @@ class StudentsClient extends GetConnect {
   @override
   void onInit() {
     httpClient.baseUrl = 'https://sistema-escolar-a247d51c11b7.herokuapp.com';
+    httpClient.timeout = const Duration(seconds: 60);
   }
 
   Future<Response> getStudents() => get('/professores/$professorId');
+
   Future<Response> createStudent(Map<String, dynamic> body) => post(
         '/alunos',
         body,
       );
+
   Future<Response> deleteStudent(int id) => delete('/alunos/$id');
-  Future<Response> searchStudents(String query) =>
-      get('/professores/$professorId/alunos?nome=$query');
+
+  Future<Response> searchStudents(String query) => get(
+        '/professores/$professorId/alunos?nome=$query',
+      );
+
+  Future<Response> createAccess(int id, String usuario, String senha) => put(
+        '/alunos/$id',
+        {'usuario': usuario, 'senha': senha},
+      );
 }
 
 class StudentsController extends GetxController {
@@ -107,5 +117,17 @@ class StudentsController extends GetxController {
       snackPosition: SnackPosition.TOP,
     );
     return [];
+  }
+
+  Future<Response> criarAcesso(
+    int id,
+    String usuario, {
+    String senha = "123456",
+  }) async {
+    return _studentsClient.createAccess(id, usuario, senha);
+  }
+
+  Future<Response> revogarAcesso(int id) {
+    return _studentsClient.createAccess(id, '', '');
   }
 }

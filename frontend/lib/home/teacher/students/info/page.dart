@@ -9,11 +9,14 @@ import 'package:intl/intl.dart';
 class StudentInfoPage extends StatelessWidget {
   final Aluno aluno;
 
-  StudentInfoPage({super.key, required this.aluno});
+  StudentInfoPage({super.key, required this.aluno}) {
+    temAcesso.value = aluno.usuario != null;
+  }
 
   final _controller = Get.find<StudentsController>();
   final usuarioController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  final temAcesso = false.obs;
 
   formatarTelefone(String telefone) {
     if (telefone.length == 11) {
@@ -155,177 +158,207 @@ class StudentInfoPage extends StatelessWidget {
             ),
             const Divider(),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    // Lógica para criar o acesso do aluno
-                    Get.defaultDialog(
-                      contentPadding: const EdgeInsets.all(16),
-                      title: 'Criar Acesso',
-                      content: Form(
-                        key: formKey,
-                        child: TextFormField(
-                          controller: usuarioController,
-                          decoration: const InputDecoration(
-                            labelText: 'Usuário',
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Campo obrigatório';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      actions: [
-                        ElevatedButton(
-                          onPressed: () => Get.back(),
-                          child: const Text('Cancelar'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
+            Obx(
+              () => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: temAcesso.value
+                        ? null
+                        : () {
                             // Lógica para criar o acesso do aluno
-                            if (formKey.currentState!.validate()) {
-                              Get.back();
-
-                              Get.dialog(
-                                const Dialog(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(24),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        CircularProgressIndicator(),
-                                        Text('Criando acesso...'),
-                                      ],
-                                    ),
+                            Get.defaultDialog(
+                              contentPadding: const EdgeInsets.all(16),
+                              title: 'Criar Acesso',
+                              content: Form(
+                                key: formKey,
+                                child: TextFormField(
+                                  controller: usuarioController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Usuário',
+                                    border: OutlineInputBorder(),
                                   ),
-                                ),
-                                barrierDismissible: false,
-                              );
-
-                              await Future.delayed(const Duration(seconds: 2));
-
-                              Get.back();
-
-                              Get.defaultDialog(
-                                barrierDismissible: false,
-                                contentPadding: const EdgeInsets.all(16),
-                                onWillPop: () async => false,
-                                title: 'Acesso criado',
-                                content: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Text(
-                                          'Usuário:',
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          usuarioController.text,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        const Text(
-                                          'Senha temporária: ',
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[200],
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                          child: const Text('123456'),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.copy),
-                                          onPressed: () async {
-                                            await Clipboard.setData(
-                                              const ClipboardData(
-                                                text: '123456',
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                actions: [
-                                  ElevatedButton(
-                                    onPressed: () => Get.back(),
-                                    child: const Text('Fechar'),
-                                  ),
-                                ],
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColor,
-                          ),
-                          child: const Text(
-                            'Criar',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                  child: const Text('Criar Acesso'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: aluno.usuario == null
-                      ? null
-                      : () {
-                          Get.defaultDialog(
-                            contentPadding: const EdgeInsets.all(16),
-                            title: 'Revogar Acesso',
-                            content: const Text(
-                              'Deseja realmente revogar o acesso?',
-                            ),
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  // Lógica para revogar o acesso do aluno
-                                  Get.back();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                ),
-                                child: const Text(
-                                  'Revogar Acesso',
-                                  style: TextStyle(color: Colors.white),
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return 'Campo obrigatório';
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
-                            ],
-                          );
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () => Get.back(),
+                                  child: const Text('Cancelar'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    // Lógica para criar o acesso do aluno
+                                    if (formKey.currentState!.validate()) {
+                                      Get.back();
+
+                                      var response = await loading(
+                                        () => _controller.criarAcesso(
+                                          aluno.id,
+                                          usuarioController.text,
+                                        ),
+                                        title: "Criando acesso...",
+                                      );
+
+                                      if (response.isOk) {
+                                        temAcesso(true);
+                                        Get.defaultDialog(
+                                          barrierDismissible: false,
+                                          contentPadding:
+                                              const EdgeInsets.all(16),
+                                          onWillPop: () async => false,
+                                          title: 'Acesso criado',
+                                          content: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Text(
+                                                    'Usuário:',
+                                                    style:
+                                                        TextStyle(fontSize: 16),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    usuarioController.text,
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Text(
+                                                    'Senha temporária: ',
+                                                    style:
+                                                        TextStyle(fontSize: 16),
+                                                  ),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.all(8),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[200],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                    child: const Text('123456'),
+                                                  ),
+                                                  IconButton(
+                                                    icon:
+                                                        const Icon(Icons.copy),
+                                                    onPressed: () async {
+                                                      await Clipboard.setData(
+                                                        const ClipboardData(
+                                                          text: '123456',
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          actions: [
+                                            ElevatedButton(
+                                              onPressed: () => Get.back(),
+                                              child: const Text('Fechar'),
+                                            ),
+                                          ],
+                                        );
+                                      } else {
+                                        Get.snackbar(
+                                          'Erro',
+                                          'Ocorreu um erro ao criar o acesso',
+                                          backgroundColor: Colors.red,
+                                          colorText: Colors.white,
+                                        );
+                                      }
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
+                                  ),
+                                  child: const Text(
+                                    'Criar',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                    child: const Text('Criar Acesso'),
                   ),
-                  child: const Text(
-                    'Revogar Acesso',
-                    style: TextStyle(color: Colors.white),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: !temAcesso.value
+                        ? null
+                        : () {
+                            Get.defaultDialog(
+                              contentPadding: const EdgeInsets.all(16),
+                              title: 'Revogar Acesso',
+                              content: const Text(
+                                'Deseja realmente revogar o acesso?',
+                              ),
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    Get.back();
+                                    var response = await loading(
+                                      () => _controller.revogarAcesso(aluno.id),
+                                      title: "Revogando acesso...",
+                                    );
+
+                                    if (response.isOk) {
+                                      temAcesso(false);
+                                      Get.snackbar(
+                                        'Acesso revogado',
+                                        'O acesso foi revogado com sucesso',
+                                        backgroundColor: Colors.green,
+                                        colorText: Colors.white,
+                                      );
+                                    } else {
+                                      Get.snackbar(
+                                        'Erro',
+                                        'Ocorreu um erro ao revogar o acesso',
+                                        backgroundColor: Colors.red,
+                                        colorText: Colors.white,
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  child: const Text(
+                                    'Revogar Acesso',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text(
+                      'Revogar Acesso',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

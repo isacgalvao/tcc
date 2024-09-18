@@ -1,73 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/home/teacher/classes/entities.dart';
+import 'package:frontend/home/teacher/class/controller.dart';
 import 'package:frontend/home/teacher/students/entities.dart';
+import 'package:frontend/util.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class Attendance {
-  final int id;
-  final Aluno aluno;
-  final Turma turma;
-  final DateTime data;
-  RxBool presente;
-  RxString? justificativa;
+class _Controller extends GetxController {
+  late final alunos = <Aluno>[].obs;
 
-  String? get justificativaValue => justificativa?.value;
-  set justificativaValue(String? value) => justificativa?.value = value!;
-  bool get presenteValue => presente.value;
-  set presenteValue(bool value) => presente.value = value;
+  final Rx<DateTime> date = DateTime.now().obs;
+  final presentes = <Aluno>[].obs;
+  final justificativas = <Aluno, String>{}.obs;
 
-  Attendance({
-    required this.id,
-    required this.aluno,
-    required this.turma,
-    required this.data,
-    required this.presente,
-    this.justificativa,
-  });
+  final isLoading = false.obs;
 
-  Attendance.of({
-    required this.aluno,
-    required this.turma,
-    required this.data,
-    required this.presente,
-    this.justificativa,
-  }) : id = 0;
+  final _controller = Get.find<AttendanceController>();
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Attendance && other.id == id;
+  void onInit() {
+    super.onInit();
+    loadStudents();
   }
 
-  @override
-  int get hashCode => id.hashCode;
+  loadStudents() async {
+    isLoading(true);
+    try {
+      final alunos = await _controller.getStudents();
+      this.alunos.addAll(alunos);
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> saveAttendance() async {
+    final attendances = presentes.map((aluno) {
+      final justificativa = justificativas[aluno];
+      final dto = {
+        'data': DateFormat('dd/MM/yyyy HH:mm:ss').format(date.value),
+        'alunoId': aluno.id,
+      };
+
+      if (justificativa != null) {
+        dto['justificativa'] = justificativa;
+      }
+
+      return dto;
+    }).toList();
+
+    var res = await _controller.classClient.saveAttendance(attendances);
+
+    if (res.status.hasError) {
+      await Get.snackbar(
+        'Erro',
+        'Erro ao salvar as presenças',
+        backgroundColor: Colors.red.withOpacity(0.8),
+      ).future;
+    }
+  }
 }
 
 class AttendancePage extends StatelessWidget {
-  final List<Aluno> alunos = [
-    // Aluno(id: 1, nome: 'Aluno 1', turmas: List.empty()),
-    // Aluno(id: 2, nome: 'Aluno 2', turmas: List.empty()),
-    // Aluno(id: 3, nome: 'Aluno 3', turmas: List.empty()),
-  ];
+  AttendancePage({super.key});
 
-  final Rx<DateTime> date = DateTime.now().obs;
-
-  final RxList<Attendance> attendance = RxList<Attendance>();
-
-  AttendancePage({super.key}) {
-    attendance.addAll(alunos
-        .map(
-          (e) => Attendance.of(
-            aluno: e,
-            turma: Turma.empty(),
-            data: DateTime.now(),
-            presente: false.obs,
-          ),
-        )
-        .toList());
-  }
+  final _controller = Get.put(_Controller());
 
   @override
   Widget build(BuildContext context) {
@@ -90,13 +85,13 @@ class AttendancePage extends StatelessWidget {
               child: ElevatedButton(
                 child: Obx(() {
                   final formattedDate = DateFormat('dd/MM/yyyy').format(
-                    date.value,
+                    _controller.date.value,
                   );
                   final today = DateTime.now();
                   final isToday = DateTime(
-                        date.value.year,
-                        date.value.month,
-                        date.value.day,
+                        _controller.date.value.year,
+                        _controller.date.value.month,
+                        _controller.date.value.day,
                       ) ==
                       DateTime(
                         today.year,
@@ -116,7 +111,7 @@ class AttendancePage extends StatelessWidget {
                     locale: const Locale('pt', 'BR'),
                   ).then((value) {
                     if (value != null) {
-                      date.value = value;
+                      _controller.date.value = value;
                     }
                   });
                 },
@@ -124,33 +119,94 @@ class AttendancePage extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: attendance.length,
-              itemBuilder: (context, index) {
-                return Obx(
-                  () => CheckboxListTile(
-                    tristate: true,
-                    title: Text(attendance[index].aluno.nome),
-                    value: attendance[index].justificativaValue != null
-                        ? null
-                        : attendance[index].presenteValue,
-                    onChanged: (value) {
-                      if (value != null) {
-                        attendance[index].presenteValue = value;
-                        if (value) {
-                          attendance[index].justificativaValue = null;
-                        }
-                      } else if (attendance[index].justificativaValue == null) {
-                        attendance[index].presenteValue = false;
-                      }
-                    },
-                    secondary:
-                        JustifyAbsenceDialog(attendance: attendance[index]),
-                    controlAffinity: ListTileControlAffinity.leading,
-                  ),
+            child: Obx(() {
+              if (_controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(),
                 );
-              },
-            ),
+              }
+
+              if (_controller.alunos.isEmpty) {
+                return const Center(
+                  child: Text('Nenhum aluno encontrado'),
+                );
+              }
+
+              return ListView.builder(
+                itemCount: _controller.alunos.length,
+                itemBuilder: (context, index) {
+                  return Obx(
+                    () => CheckboxListTile(
+                      title: Text(_controller.alunos[index].nome),
+                      value: _controller.presentes
+                          .contains(_controller.alunos[index]),
+                      onChanged: (value) {
+                        if (value == true) {
+                          _controller.presentes.add(_controller.alunos[index]);
+                        } else {
+                          _controller.justificativas
+                              .remove(_controller.alunos[index]);
+                          _controller.presentes
+                              .remove(_controller.alunos[index]);
+                        }
+                      },
+                      secondary: IconButton(
+                        onPressed: () async {
+                          final reasonController = TextEditingController(
+                            text: _controller.justificativas[
+                                    _controller.alunos[index]] ??
+                                '',
+                          );
+                          await Get.defaultDialog(
+                            contentPadding: const EdgeInsets.all(24),
+                            title: 'Justificar falta',
+                            content: TextField(
+                              controller: reasonController,
+                              decoration: const InputDecoration(
+                                labelText: 'Motivo',
+                              ),
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  reasonController.clear();
+                                  Get.back();
+                                },
+                                child: const Text('Cancelar'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (reasonController.text.isEmpty) {
+                                    Get.snackbar(
+                                      'Erro',
+                                      'O motivo não pode estar vazio',
+                                      backgroundColor:
+                                          Colors.red.withOpacity(0.8),
+                                    );
+                                  } else {
+                                    _controller.justificativas[_controller
+                                        .alunos[index]] = reasonController.text;
+                                    if (!_controller.presentes
+                                        .contains(_controller.alunos[index])) {
+                                      _controller.presentes
+                                          .add(_controller.alunos[index]);
+                                    }
+                                    Get.back();
+                                  }
+                                },
+                                child: const Text('Justificar'),
+                              ),
+                            ],
+                          );
+                        },
+                        icon: const Icon(Icons.info_outline),
+                      ),
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),
@@ -158,63 +214,13 @@ class AttendancePage extends StatelessWidget {
         color: Colors.transparent,
         child: ElevatedButton(
           child: const Text('Lançar presença'),
-          onPressed: () {
-            // TODO: Implementar lançamento de presença
+          onPressed: () async {
+            await loading(_controller.saveAttendance);
+            _controller._controller.getAttendances();
             Get.back();
           },
         ),
       ),
-    );
-  }
-}
-
-class JustifyAbsenceDialog extends StatelessWidget {
-  final Attendance attendance;
-
-  JustifyAbsenceDialog({super.key, required this.attendance});
-
-  final TextEditingController _reasonController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () {
-        Get.defaultDialog(
-          contentPadding: const EdgeInsets.all(24),
-          title: 'Justificar falta',
-          content: TextField(
-            controller: _reasonController,
-            decoration: const InputDecoration(
-              labelText: 'Motivo',
-            ),
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                _reasonController.clear();
-                Get.back();
-              },
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_reasonController.text.isEmpty) {
-                  Get.snackbar(
-                    'Erro',
-                    'O motivo não pode estar vazio',
-                    backgroundColor: Colors.red.withOpacity(0.8),
-                  );
-                } else {
-                  attendance.justificativaValue = _reasonController.text;
-                  Get.back();
-                }
-              },
-              child: const Text('Justificar'),
-            ),
-          ],
-        );
-      },
-      icon: const Icon(Icons.info_outline),
     );
   }
 }

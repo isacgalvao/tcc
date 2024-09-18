@@ -61,9 +61,41 @@ class _LoginPageState extends State<LoginPage> {
         _passwordController.text,
       );
 
+      if (user == null && mounted) {
+        await Get.dialog(
+          AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            title: const Text(
+              "Login inválido",
+              textAlign: TextAlign.center,
+            ),
+            content: const Text(
+              "Email/usuário ou senha incorretos. Por favor, tente novamente.",
+              style: TextStyle(fontSize: 16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(),
+                style: TextButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
       bool telaIncorreta = user['role'].toString().capitalize !=
           widget.role.getRoleDescription();
-      if ((user == null || telaIncorreta) && mounted) {
+      if (telaIncorreta && mounted) {
         await Get.dialog(
           AlertDialog(
             shape: RoundedRectangleBorder(
@@ -225,6 +257,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 2),
                   if (widget.role == Role.professor)
                     SizedBox(
                       width: double.infinity,

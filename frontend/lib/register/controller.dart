@@ -4,6 +4,7 @@ class Backend extends GetConnect {
   @override
   void onInit() {
     httpClient.baseUrl = 'https://sistema-escolar-a247d51c11b7.herokuapp.com';
+    httpClient.timeout = const Duration(seconds: 60);
   }
 
   Future<Response> healthcheck() => get('/healthcheck');

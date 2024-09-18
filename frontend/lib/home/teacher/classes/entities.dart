@@ -46,4 +46,6 @@ class Turma {
       dataCriacao: DateTime.parse(json['dataCriacao']),
     );
   }
+
+  get finalizada => situacao == "CONCLUIDA";
 }

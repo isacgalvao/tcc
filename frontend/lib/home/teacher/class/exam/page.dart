@@ -1,52 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/home/teacher/class/controller.dart';
+import 'package:frontend/home/teacher/students/entities.dart';
+import 'package:frontend/util.dart';
 import 'package:get/get.dart';
 
-class CreateExamPage extends StatelessWidget {
-  final alunos = [
-    // const Aluno(
-    //   id: 1,
-    //   nome: 'Aluno 1',
-    //   turmas: [],
-    // ),
-    // const Aluno(
-    //   id: 2,
-    //   nome: 'Aluno 2',
-    //   turmas: [],
-    // ),
-    // const Aluno(
-    //   id: 3,
-    //   nome: 'Aluno 3',
-    //   turmas: [],
-    // ),
-  ];
+class _Controller extends GetxController {
+  final _controller = Get.find<ExamController>();
+  final data = DateTime.now();
+  final alunos = <Aluno>[].obs;
+  final isLoading = false.obs;
 
   final List<TextEditingController> notaControllers = [];
-  final formKey = GlobalKey<FormState>();
 
-  CreateExamPage({super.key}) {
-    for (var _ in alunos) {
-      notaControllers.add(TextEditingController());
+  @override
+  void onInit() {
+    super.onInit();
+    getStudents();
+  }
+
+  @override
+  void onClose() {
+    for (final controller in notaControllers) {
+      controller.dispose();
+    }
+    super.onClose();
+  }
+
+  getStudents() async {
+    isLoading(true);
+    try {
+      final response = await _controller.classClient.getStudents();
+      if (response.hasError) {
+        Get.snackbar(
+          'Erro',
+          'Erro ao buscar alunos',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          icon: const Icon(Icons.error, color: Colors.white),
+          shouldIconPulse: true,
+          snackPosition: SnackPosition.TOP,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 16,
+          ),
+          padding: const EdgeInsets.all(16),
+        );
+      } else {
+        final data = response.body as List;
+        alunos.assignAll(data.map((e) => Aluno.fromJson(e)).toList());
+        notaControllers.assignAll(List.generate(
+          alunos.length,
+          (index) => TextEditingController(),
+        ));
+      }
+    } finally {
+      isLoading(false);
     }
   }
 
-  void adicionarAvaliacao() {
+  Future<Response> addExam() {
+    final notas = <Map<String, dynamic>>[];
+    for (int i = 0; i < alunos.length; i++) {
+      notas.add({
+        'alunoId': alunos[i].id,
+        'valor': double.parse(notaControllers[i].text),
+      });
+    }
+    return _controller.addExam(data, notas);
+  }
+}
+
+class CreateExamPage extends StatelessWidget {
+  final _controller = Get.put(_Controller());
+
+  final formKey = GlobalKey<FormState>();
+
+  CreateExamPage({super.key});
+
+  void adicionarAvaliacao() async {
     if (formKey.currentState!.validate()) {
-      // TODO: Implementar a lógica de adicionar avaliação
-      Get.back();
-      Get.snackbar(
-        'Sucesso',
-        'Avaliação adicionada com sucesso',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        icon: const Icon(Icons.check, color: Colors.white),
-        shouldIconPulse: true,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 16,
-        ),
-        padding: const EdgeInsets.all(16),
-      );
+      var res = await loading(_controller.addExam);
+
+      if (res.isOk) {
+        Get.back();
+        Get.snackbar(
+          'Sucesso',
+          'Avaliação adicionada com sucesso',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          icon: const Icon(Icons.check, color: Colors.white),
+          shouldIconPulse: true,
+          snackPosition: SnackPosition.TOP,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 16,
+          ),
+          padding: const EdgeInsets.all(16),
+        );
+      } else {
+        Get.snackbar(
+          'Erro',
+          'Erro ao adicionar avaliação',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          icon: const Icon(Icons.error, color: Colors.white),
+          shouldIconPulse: true,
+          snackPosition: SnackPosition.TOP,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 16,
+          ),
+          padding: const EdgeInsets.all(16),
+        );
+      }
     }
   }
 
@@ -56,19 +122,29 @@ class CreateExamPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Adicionar Avaliação'),
       ),
-      body: Form(
-        key: formKey,
-        child: ListView.builder(
-          itemCount: alunos.length,
-          itemBuilder: (context, index) {
-            final aluno = alunos[index];
-            return AlunoNotaWidget(
-              nome: aluno.nome,
-              notaController: notaControllers[index],
-            );
-          },
-        ),
-      ),
+      body: Obx(() {
+        if (_controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (_controller.alunos.isEmpty) {
+          return const Center(child: Text('Nenhum aluno encontrado'));
+        }
+
+        return Form(
+          key: formKey,
+          child: ListView.builder(
+            itemCount: _controller.alunos.length,
+            itemBuilder: (context, index) {
+              final aluno = _controller.alunos[index];
+              return AlunoNotaWidget(
+                nome: aluno.nome,
+                notaController: _controller.notaControllers[index],
+              );
+            },
+          ),
+        );
+      }),
       bottomNavigationBar: BottomAppBar(
         color: Colors.transparent,
         child: ElevatedButton(

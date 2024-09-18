@@ -11,6 +11,7 @@ class ClassesClient extends GetConnect {
   @override
   void onInit() {
     httpClient.baseUrl = 'https://sistema-escolar-a247d51c11b7.herokuapp.com';
+    httpClient.timeout = const Duration(seconds: 60);
   }
 
   Future<Response> getClasses() => get('/professor/$teacherId/turmas');
@@ -54,7 +55,7 @@ class ClassesController extends GetxController {
     return res;
   }
 
-  void getClasses() async {
+  Future<void> getClasses() async {
     isLoading(true);
     try {
       final response = await client.getClasses();

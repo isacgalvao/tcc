@@ -5,6 +5,7 @@ class LoginClient extends GetConnect {
   @override
   void onInit() {
     httpClient.baseUrl = 'https://sistema-escolar-a247d51c11b7.herokuapp.com';
+    httpClient.timeout = const Duration(seconds: 60);
   }
 
   Future<Response> loginUser(String usuario, String senha) => post(
@@ -51,6 +52,7 @@ class LoginController extends GetxController {
       if (isChecked) {
         _storage.write('nome', res.body['nome']);
         _storage.write('role', res.body['role']);
+        _storage.write("user", res.body['usuario']);
       }
 
       return res.body;
