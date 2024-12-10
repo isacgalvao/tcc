@@ -1,4 +1,10 @@
 {
-    "cmake.configureOnOpen": false,
-    "java.compile.nullAnalysis.mode": "automatic"
+    "cSpell.words": [
+        "Getx",
+        "hexcolor",
+        "poppins",
+        "skeletonizer",
+        "Skeletonizer",
+        "Uuid"
+    ]
 }

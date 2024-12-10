@@ -1,51 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/onboarding_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:frontend/home/student/page.dart';
-import 'package:frontend/home/teacher/page.dart';
-import 'package:frontend/login/entities.dart';
-import 'package:frontend/role/page.dart';
+import 'package:frontend/pages/teacher_home_page.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 
-void main() async {
-  await GetStorage.init();
-  runApp(const Main());
+void main() {
+  runApp(const MyApp());
 }
 
-Widget get() {
-  final storage = Get.put(GetStorage(), permanent: true);
-  final String? role = storage.read('role');
-  final String? nome = storage.read('nome');
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-  if (role == null || nome == null) {
-    return const RolePage();
-  }
-
-  if (Role.fromString(role) == Role.aluno) {
-    return StudentHomePage(studentName: nome);
-  } else if (Role.fromString(role) == Role.professor) {
-    return TeacherHomePage(teacherName: nome);
-  } else {
-    return const RolePage();
-  }
-}
-
-class Main extends StatelessWidget {
-  const Main({super.key});
-
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Gestão Individual de Turmas',
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-      ],
+      title: 'Gestão de Turmas',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      debugShowCheckedModeBanner: false,
-      home: get(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: TeacherHomePage(),
     );
   }
 }
