@@ -4,6 +4,7 @@ import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:frontend/models/class.dart';
 import 'package:frontend/models/student.dart';
 import 'package:frontend/pages/class_management_page.dart';
+import 'package:frontend/pages/class_resume_page.dart';
 import 'package:frontend/pages/student_management_page.dart';
 import 'package:frontend/utils/hexcolor.dart';
 import 'package:frontend/utils/input_formatters.dart';
@@ -93,6 +94,94 @@ class ClassCard extends StatelessWidget {
               size: 12,
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class StudentClassCard extends StatelessWidget {
+  final Class _class;
+
+  const StudentClassCard(this._class, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(
+        minWidth: 150,
+      ),
+      child: GestureDetector(
+        onTap: () => Get.to(() => ClassResumePage(_class)),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  backgroundColor: HexColor(_class.color),
+                  child: Text(
+                    _class.subject[0].toUpperCase(),
+                    style: GoogleFonts.dmSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _class.name,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _class.subject,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "${_class.students.length} ${_class.students.length > 1 ? "alunos" : "aluno"}",
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    fontWeight: FontWeight.normal,
+                    color: HexColor("#6F6F79"),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => Get.to(() => ClassResumePage(_class)),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        WidgetStateProperty.all(HexColor("#01B6CB")),
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    shadowColor: WidgetStateProperty.all(Colors.transparent),
+                  ),
+                  child: Text(
+                    "Ver turma",
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -393,71 +482,111 @@ class ExamCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: HexColor(_student.color),
-          child: Text(
-            _student.name[0].toUpperCase(),
-            style: GoogleFonts.dmSans(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          leading: CircleAvatar(
+            backgroundColor: HexColor(_student.color),
+            child: Text(
+              _student.name[0].toUpperCase(),
+              style: GoogleFonts.dmSans(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          title: Text(
+            _student.name,
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          subtitle: Text(
+            'Situação: ${_student.status.name}',
+            style: GoogleFonts.poppins(
+              fontSize: 10,
+              fontWeight: FontWeight.normal,
+              color: HexColor("#6F6F79"),
+            ),
+          ),
+          trailing: SizedBox(
+            height: 40,
+            width: 100,
+            child: TextField(
+              controller: _controller,
+              textAlign: TextAlign.center,
+              textAlignVertical: TextAlignVertical.center,
+              maxLength: 2,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                MaxValueInputFormatter(10),
+              ],
+              decoration: InputDecoration(
+                counter: SizedBox.shrink(),
+                hintText: 'Nota',
+                hintStyle: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: HexColor("#0C448C"),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: HexColor("#E8F2FF"),
+              ),
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: HexColor("#0C448C"),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          )),
+    );
+  }
+}
+
+class StudentReportCard extends StatelessWidget {
+  final String title;
+  final Widget page;
+
+  const StudentReportCard({super.key, required this.title, required this.page});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 6,
+      color: Colors.white,
+      shadowColor: Colors.black.withOpacity(0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        onTap: () => Get.to(() => page),
+        leading: CircleAvatar(
+          backgroundColor: HexColor("#01B6CB"),
+          child: Icon(
+            Icons.insert_chart_outlined,
+            color: Colors.white,
           ),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
         title: Text(
-          _student.name,
+          title,
           style: GoogleFonts.dmSans(
             fontSize: 14,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
-        subtitle: Text(
-          'Situação: ${_student.status.name}',
-          style: GoogleFonts.poppins(
-            fontSize: 10,
-            fontWeight: FontWeight.normal,
-            color: HexColor("#6F6F79"),
-          ),
-        ),
-        trailing: SizedBox(
-          height: 40,
-          width: 100,
-          child: TextField(
-            controller: _controller,
-            textAlign: TextAlign.center,
-            textAlignVertical: TextAlignVertical.center,
-            maxLength: 2,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              MaxValueInputFormatter(10),
-            ],
-            decoration: InputDecoration(
-              counter: SizedBox.shrink(),
-              hintText: 'Nota',
-              hintStyle: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: HexColor("#0C448C"),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: HexColor("#E8F2FF"),
-            ),
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: HexColor("#0C448C"),
-            ),
-            keyboardType: TextInputType.number,
-          ),
-        )
       ),
     );
   }

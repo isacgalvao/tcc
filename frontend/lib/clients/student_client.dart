@@ -1,8 +1,8 @@
 import 'package:frontend/models/student.dart';
 import 'package:get/get.dart';
 
-// TODO: implement StudentClient
-class StudentClient extends GetConnect {
+// TODO: implement StudentManagementClient
+class StudentManagementClient extends GetConnect {
   final fakeLoadingTime = 2;
   final mock = [
     Student(
@@ -38,5 +38,17 @@ class StudentClient extends GetConnect {
   Future<List<Student>> fetchStudents() async {
     await Future.delayed(Duration(seconds: fakeLoadingTime));
     return mock;
+  }
+}
+
+class StudentProfileClient extends GetConnect {
+  final fakeLoadingTime = 2;
+
+  Future<void> updateProfile() async {
+    await Future.delayed(Duration(seconds: fakeLoadingTime));
+  }
+
+  Future<void> getStudentMetrics() async {
+    await Future.delayed(Duration(seconds: fakeLoadingTime));
   }
 }

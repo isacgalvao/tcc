@@ -136,7 +136,7 @@ class StudentsController extends GetxController {
   final searchController = TextEditingController();
 
   // Clients
-  final client = Get.put(StudentClient());
+  final client = Get.put(StudentManagementClient());
 
   // Entities
   final students = <Student>[].obs;
@@ -240,7 +240,7 @@ class ProfileController extends GetxController {
     if (value.length < 6) {
       return 'Senha deve ter no mínimo 6 caracteres';
     }
-    
+
     return null;
   }
 }

@@ -79,7 +79,7 @@ class SearchStudentController extends GetxController {
   get isLoading => _isLoading.value;
 
   // Clients
-  final client = Get.put(StudentClient());
+  final client = Get.put(StudentManagementClient());
 
   // Entities
   final students = <Student>[].obs;
@@ -94,7 +94,7 @@ class SearchStudentController extends GetxController {
     super.onInit();
     fetchStudents();
   }
-  
+
   void fetchStudents() async {
     try {
       _isLoading(true);

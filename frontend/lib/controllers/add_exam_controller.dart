@@ -4,13 +4,12 @@ import 'package:frontend/widgets/snackbar.dart';
 import 'package:get/get.dart';
 
 class AddExamController extends GetxController {
-  
   final _isLoading = false.obs;
 
   get isLoading => _isLoading.value;
 
-  final client = Get.put(StudentClient());
-  
+  final client = Get.put(StudentManagementClient());
+
   final students = <Student>[].obs;
 
   @override
@@ -18,7 +17,7 @@ class AddExamController extends GetxController {
     super.onInit();
     fetchStudents();
   }
-  
+
   void fetchStudents() async {
     try {
       _isLoading(true);
